@@ -1,21 +1,68 @@
-# GenReport
+# Report Generator
 
-**TODO: Add description**
+**TODO: Generate a report from a csv file**
 
-## Installation
+### Problem
+Given a csv file containing name, hours, day, month and year of 10 freelancers, return all hours, hours per month and hours per year.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `gen_report` to your list of dependencies in `mix.exs`:
+### Tips
+> Consider 30 days in every month.
 
-```elixir
-def deps do
-  [
-    {:gen_report, "~> 0.1.0"}
-  ]
-end
-```
+> Do not consider leap year.
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/gen_report](https://hexdocs.pm/gen_report).
+> See the the lib files to learn how to run with iex.
+---
+### Example Table
+| Names  | Hours |  Day  | Month | Year |
+| ------ | :---: | :---: | :---: | ---: |
+| name 1 |  10   |   5   |   1   | 2016 |
+| name 2 |  18   |  30   |   2   | 2017 |
+| name 3 |  17   |  10   |   3   | 2018 |
+| name 4 |  18   |   7   |   4   | 2019 |
+| name 5 |   6   |  25   |  12   | 2020 |
+---
+### First run and test
+    mix deps.get
+    mix compile
+    mix test 
+___
 
+### Try it
+- See the lib files and read the @doc.
+- Open iex with command ```iex -S mix```.
+- Run the line ```iex> <code_to_run>``` in your iex.
+
+### The Expected Output Looks like this
+~~~elixir
+%{
+  all_hours: %{
+        name: all_hours,
+        name: all_hours,
+        ...
+    },
+  hours_per_month: %{
+        name: %{
+            month: hours_per_month,
+            month: hours_per_month,
+            ...
+        },
+        name: %{
+            month: hours_per_month,
+            month: hours_per_month,
+            ...
+        }
+    },
+  hours_per_year: %{
+        name: %{
+            year: hours_per_year,
+            year: hours_per_year,
+            ...
+        },
+        name: %{
+            year: hours_per_year,
+            year: hours_per_year,
+            ...
+        }
+    }
+}
+~~~
