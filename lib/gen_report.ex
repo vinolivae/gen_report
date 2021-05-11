@@ -18,7 +18,7 @@ defmodule GenReport do
     "reports/#{filename}"
     |> File.stream!()
     |> Stream.map(&format_line(&1))
-    |> Enum.reduce(report_general_acc(), fn line, report ->
+    |> Enum.reduce(report_acc(), fn line, report ->
       # IO.inspect(line, label: "line")
       # IO.inspect(report, label: "report")
 
@@ -37,18 +37,18 @@ defmodule GenReport do
     hours_per_month = Map.put(freelancers, name, freelancers[month])
     hours_per_year = Map.put(freelancers, name, freelancers[year])
 
-    build_general_report(all_hours, hours_per_month, hours_per_year)
+    build_report(all_hours, hours_per_month, hours_per_year)
   end
 
-  defp report_general_acc do
+  defp report_acc do
     all_hours = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
     hours_per_month = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
     hours_per_year = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
 
-    build_general_report(all_hours, hours_per_month, hours_per_year)
+    build_report(all_hours, hours_per_month, hours_per_year)
   end
 
-  defp build_general_report(all_hours, hours_per_month, hours_per_year),
+  defp build_report(all_hours, hours_per_month, hours_per_year),
     do: %{
       "all_hours" => all_hours,
       "hours_per_month" => hours_per_month,
