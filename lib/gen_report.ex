@@ -14,20 +14,7 @@ defmodule GenReport do
     "Rafael",
     "Vinicius"
   ]
-  @months [
-    "january",
-    "february",
-    "march",
-    "april",
-    "may",
-    "june",
-    "july",
-    "august",
-    "september",
-    "october",
-    "november",
-    "december"
-  ]
+  @months ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
   @years ["2016", "2017", "2018", "2019", "2020"]
 
   def read_report(filename) do
@@ -35,7 +22,7 @@ defmodule GenReport do
     |> File.stream!()
     |> Stream.map(&format_line(&1))
     |> Enum.reduce(report_acc(), fn line, report ->
-      # IO.inspect(line, label: "line")
+      IO.inspect(line, label: "line")
       # IO.inspect(report, label: "report")
 
       handle_values(line, report)
@@ -50,15 +37,15 @@ defmodule GenReport do
     |> List.update_at(2, &String.to_integer/1)
   end
 
-  defp handle_values([name, hours, _days, month, year], %{"all_hours" => freelancers}) do
-    all_hours = Map.put(freelancers, name, freelancers[name] + hours)
-    hours_per_month = Map.put(freelancers, month, freelancers[month])
-    hours_per_year = Map.put(freelancers, name, freelancers[year])
+  defp handle_values([name, hours, _days, month, year], %{"all_hours" => freelancer_all_hours, "hours_per_month" => freelancer_hours_month,
+  "hours_per_year" => freelancer_hours_year}) do
+    all_hours = Map.put(freelancer_all_hours, name, freelancer_all_hours[name] + hours)
+    hours_per_month = Map.put(freelancer_hours_month, month, freelancer_hours_month[month])
+    hours_per_year = Map.put(freelancer_hours_year, freelancer_hours_year[year], year)
 
     build_report(all_hours, hours_per_month, hours_per_year)
   end
-
-  defp report_acc do
+  def report_acc do
     all_hours = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
 
     hours_per_month =
