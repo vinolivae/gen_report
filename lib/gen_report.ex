@@ -40,8 +40,8 @@ defmodule GenReport do
   defp handle_values([name, hours, _days, month, year], %{"all_hours" => freelancer_all_hours, "hours_per_month" => freelancer_hours_month,
   "hours_per_year" => freelancer_hours_year}) do
     all_hours = Map.put(freelancer_all_hours, name, freelancer_all_hours[name] + hours)
-    hours_per_month = Map.put(freelancer_hours_month, month, freelancer_hours_month[month])
-    hours_per_year = Map.put(freelancer_hours_year, freelancer_hours_year[year], year)
+    hours_per_month = put_in(freelancer_hours_month, [name, month], 2)
+    hours_per_year = put_in(freelancer_hours_year, [name, year], 10)
 
     build_report(all_hours, hours_per_month, hours_per_year)
   end
