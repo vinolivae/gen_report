@@ -14,6 +14,22 @@ defmodule GenReport do
     "Rafael",
     "Vinicius"
   ]
+  @months [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december"
+  ]
+  @years ["2016", "2017", "2018", "2019", "2020"]
+
   def read_report(filename) do
     "reports/#{filename}"
     |> File.stream!()
@@ -30,11 +46,13 @@ defmodule GenReport do
     line
     |> String.trim()
     |> String.split(",")
+    |> List.update_at(1, &String.to_integer/1)
+    |> List.update_at(2, &String.to_integer/1)
   end
 
-  defp handle_values([name, hours, _day, month, year], %{"all_hours" => freelancers}) do
-    all_hours = Map.put(freelancers, name, freelancers[name] + String.to_integer(hours))
-    hours_per_month = Map.put(freelancers, name, freelancers[month])
+  defp handle_values([name, hours, _days, month, year], %{"all_hours" => freelancers}) do
+    all_hours = Map.put(freelancers, name, freelancers[name] + hours)
+    hours_per_month = Map.put(freelancers, month, freelancers[month])
     hours_per_year = Map.put(freelancers, name, freelancers[year])
 
     build_report(all_hours, hours_per_month, hours_per_year)
@@ -42,11 +60,22 @@ defmodule GenReport do
 
   defp report_acc do
     all_hours = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
-    hours_per_month = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
-    hours_per_year = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
+
+    hours_per_month =
+      @months
+      |> Enum.into(%{}, fn month_name -> {month_name, 0} end)
+      |> all_freelancers_name()
+
+    hours_per_year =
+      @years
+      |> Enum.into(%{}, fn freelancer_name -> {freelancer_name, 0} end)
+      |> all_freelancers_name()
 
     build_report(all_hours, hours_per_month, hours_per_year)
   end
+
+  defp all_freelancers_name(map_data),
+    do: Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, map_data} end)
 
   defp build_report(all_hours, hours_per_month, hours_per_year),
     do: %{
