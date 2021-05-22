@@ -22,10 +22,7 @@ defmodule GenReport do
     |> File.stream!()
     |> Stream.map(&format_line(&1))
     |> Enum.reduce(report_acc(), fn line, report ->
-      IO.inspect(line, label: "line")
-      # IO.inspect(report, label: "report")
-
-      handle_values(line, report)
+      calculate_values(line, report)
     end)
   end
 
@@ -37,37 +34,53 @@ defmodule GenReport do
     |> List.update_at(2, &String.to_integer/1)
   end
 
-  defp handle_values([name, hours, _days, month, year], %{"all_hours" => freelancer_all_hours, "hours_per_month" => freelancer_hours_month,
-  "hours_per_year" => freelancer_hours_year}) do
-    all_hours = Map.put(freelancer_all_hours, name, freelancer_all_hours[name] + hours)
-    hours_per_month = put_in(freelancer_hours_month, [name, month], 2)
-    hours_per_year = put_in(freelancer_hours_year, [name, year], 10)
+  defp calculate_values([name, hours, _days, month, year], %{
+         "all_hours" => freelancer_all_hours,
+         "hours_per_month" => freelancer_hours_month,
+         "hours_per_year" => freelancer_hours_year
+       }) do
+    all_hours = calculate_all_hours(freelancer_all_hours, name, hours)
+    all_hours_per_month = calculate_hours_per_month(freelancer_hours_month, name, month, hours)
+    all_hours_per_year = calculate_hours_per_year(freelancer_hours_year, name, year, hours)
 
-    build_report(all_hours, hours_per_month, hours_per_year)
+    build_report(all_hours, all_hours_per_month, all_hours_per_year)
   end
-  def report_acc do
+
+  defp calculate_all_hours(freelancer_all_hours, name, hours),
+    do: Map.put(freelancer_all_hours, name, freelancer_all_hours[name] + hours)
+
+  defp calculate_hours_per_month(freelancer_hours_month, name, month, hours) do
+    all_hours_per_month =
+      Map.put(freelancer_hours_month[name], month, freelancer_hours_month[name][month] + hours)
+
+    freelancer_and_month = Map.put_new(%{}, name, all_hours_per_month)
+    Map.merge(freelancer_hours_month, freelancer_and_month)
+  end
+
+  defp calculate_hours_per_year(freelancer_hours_year, name, year, hours) do
+    all_hours_per_year =
+      Map.put(freelancer_hours_year[name], year, freelancer_hours_year[name][year] + hours)
+
+    freelancer_and_year = Map.put_new(%{}, name, all_hours_per_year)
+    Map.merge(freelancer_hours_year, freelancer_and_year)
+  end
+
+  defp report_acc do
     all_hours = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
 
-    hours_per_month =
-      @months
-      |> Enum.into(%{}, fn month_name -> {month_name, 0} end)
-      |> all_freelancers_name()
+    hours = Enum.into(@months, %{}, fn month_name -> {month_name, 0} end)
+    name_and_hours = Enum.into(@freelancers, %{}, fn name -> {name, hours} end)
 
-    hours_per_year =
-      @years
-      |> Enum.into(%{}, fn freelancer_name -> {freelancer_name, 0} end)
-      |> all_freelancers_name()
+    years = Enum.into(@years, %{}, fn year_name -> {year_name, 0} end)
+    name_and_years = Enum.into(@freelancers, %{}, fn name -> {name, years} end)
 
-    build_report(all_hours, hours_per_month, hours_per_year)
+    build_report(all_hours, name_and_hours, name_and_years)
   end
 
-  defp all_freelancers_name(map_data),
-    do: Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, map_data} end)
-
-  defp build_report(all_hours, hours_per_month, hours_per_year),
+  defp build_report(all_hours, name_and_hours, name_and_years),
     do: %{
       "all_hours" => all_hours,
-      "hours_per_month" => hours_per_month,
-      "hours_per_year" => hours_per_year
+      "hours_per_month" => name_and_hours,
+      "hours_per_year" => name_and_years
     }
 end
