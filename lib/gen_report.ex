@@ -19,6 +19,17 @@ defmodule GenReport do
   @months ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
   @years ["2016", "2017", "2018", "2019", "2020"]
 
+  @doc """
+  generate a report with all freelancers and your hours per month and year
+
+  ##example
+  iex> GenReport.read_report("gen_report_test.csv")
+  %{
+    "all_hours" => all_hours,
+    "all_hours_per_month" => hours_per_month,
+    "all_hours_per_year" => hours_per_year
+  }
+  """
   @spec read_report(Binary.t()) :: Map.t()
   def read_report(filename) do
     filename
