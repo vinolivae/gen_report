@@ -39,6 +39,20 @@ defmodule GenReport do
     end)
   end
 
+  def read_report_from_many(filenames) when not is_list(filenames),
+    do: {:error, "Provide a list of strings"}
+
+  def read_report_from_many(filenames) do
+    result =
+      filenames
+      |> Task.async_stream(&read_report/1)
+      |> Enum.reduce(report_acc(), fn {:ok, result}, report ->
+        Calculator.format_all_calculated_values_for_many(result, report)
+      end)
+
+    {:ok, result}
+  end
+
   defp report_acc do
     all_hours = Enum.into(@freelancers, %{}, fn freelancer_name -> {freelancer_name, 0} end)
 

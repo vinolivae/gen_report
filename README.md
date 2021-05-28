@@ -2,6 +2,11 @@
 
 **TODO: Generate a report from a csv file**
 
+### Alert
+Check the feat/gen-report-with-parallelism branch for the same solution, but using parallelism!
+
+Look for the read_report_from_many function for more details.
+
 ### Problem
 Given a csv file containing name, hours, day, month and year of 10 freelancers, return all hours, hours per month and hours per year.
 
